@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { MessagesAnnotation, StateGraph } from '@langchain/langgraph';
+import { MessagesAnnotation, StateGraph, MemorySaver } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { ChatOllama } from '@langchain/ollama';
 import { TavilySearch } from '@langchain/tavily';
@@ -29,6 +29,13 @@ const rl = createInterface({
     output: process.stdout
 });
 
+const checkpointer = new MemorySaver();
+const config = {
+    configurable: {
+        thread_id: '1'
+    }
+}
+
 const llm = new ChatOllama({
      model: "llama3.2:3b",
     baseUrl: "http://localhost:11434"
@@ -47,7 +54,6 @@ async function callModel(state){
 
 const shouldRunTools = (state) => {
     const lastMessage = state.messages[state.messages.length -1];
-    console.log('lastMessage', lastMessage.tool_calls);
     if(lastMessage.tool_calls.length > 0) {
         return 'tools';
     }
@@ -61,7 +67,7 @@ const graph = new StateGraph(MessagesAnnotation)
 .addEdge('tools', 'agent')
 .addConditionalEdges('agent', shouldRunTools)
 
-const app = graph.compile();
+const app = graph.compile({ checkpointer});
 
 
 async function main() {
@@ -71,7 +77,7 @@ async function main() {
         
         const final  = await app.invoke({
             messages: [{'role': 'user', content: input}]
-        });
+        }, config);
 
 
         const lastMessage = final.messages[final.messages.length -1].content
