@@ -1,0 +1,18 @@
+{
+  "name": "agent-using-langgraph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@langchain/core": "^1.3.0",
+    "@langchain/langgraph": "^1.5.2",
+    "@langchain/ollama": "^1.3.0"
+  }
+}
